@@ -13,7 +13,7 @@ if not API_KEY:
 genai.configure(api_key=API_KEY)
 
 try:
-    model = genai.GenerativeModel('gemini-3.6-flash')
+    model = genai.GenerativeModel('gemini-1.5-flash')
 except Exception:
     available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
     model_name = available_models[0] if available_models else 'gemini-1.5-flash'
@@ -25,7 +25,7 @@ response = model.generate_content(script_prompt)
 script_text = response.text.strip()
 print(f"Generated Script:\n{script_text}")
 
-# 3. تحويل النص إلى صوت احترافي
+# 3. تحويل النص إلى صوت مصري طبيعي (Edge TTS)
 VOICE = "ar-EG-SalmaNeural"
 audio_file = "voiceover.mp3"
 
@@ -36,12 +36,12 @@ async def generate_voice():
 asyncio.run(generate_voice())
 print("Voiceover generated successfully!")
 
-# 4. توليد وصف الصورة بالإنجليزي
+# 4. توليد وصف الصورة بالذكاء الاصطناعي
 image_prompt_req = f"Write a short, detailed image prompt in English for a 3D Pixar style cartoon scene representing this story: '{script_text}'. Keep it under 20 words."
 image_prompt_res = model.generate_content(image_prompt_req)
 clean_image_prompt = image_prompt_res.text.strip().replace('\n', ' ')
 
-# 5. تنزيل الصورة الكرتونية
+# 5. جلب الصورة الرأسية (1080x1920)
 image_url = f"https://image.pollinations.ai/prompt/{requests.utils.quote(clean_image_prompt)}?width=1080&height=1920&nologo=true"
 image_file = "scene.jpg"
 

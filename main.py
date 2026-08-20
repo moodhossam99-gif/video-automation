@@ -4,34 +4,34 @@ import requests
 import edge_tts
 import google.generativeai as genai
 
-# استدعاء MoviePy بشكل متوافق
 try:
     from moviepy.editor import AudioFileClip, ImageClip
 except ImportError:
     from moviepy.audio.io.AudioFileClip import AudioFileClip
     from moviepy.video.VideoClip import ImageClip
 
-# 1. إعداد Gemini API وجلب موديل شغال تلقائياً
+# 1. API Setup
 API_KEY = os.getenv("API_KEY", "").strip()
 if not API_KEY:
     raise ValueError("API_KEY is missing!")
 
 genai.configure(api_key=API_KEY)
 
-# جلب أول موديل يدعم generateContent تلقائياً لمنع أي خطأ 404
-supported_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-selected_model = supported_models[0] if supported_models else 'gemini-1.5-flash'
-print(f"Using Model: {selected_model}")
-model = genai.GenerativeModel(selected_model)
+try:
+    model = genai.GenerativeModel('gemini-3.6-flash')
+except Exception:
+    supported_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    model_name = supported_models[0] if supported_models else 'gemini-1.5-flash'
+    model = genai.GenerativeModel(model_name)
 
-# 2. توليد سيناريو كرتوني طريف
-script_prompt = "اكتب موقفًا كرتونيًا طريفًا وقصيرًا جداً بين طفل ووالده باللغة العربية في سطرين فقط."
+# 2. Script Generation (English)
+script_prompt = "Write a very short, funny 2-line joke between a child and a father."
 response = model.generate_content(script_prompt)
 script_text = response.text.strip()
 print(f"Generated Script:\n{script_text}")
 
-# 3. تحويل النص إلى صوت (Edge TTS)
-VOICE = "ar-EG-SalmaNeural"
+# 3. Text to Speech (English Voice)
+VOICE = "en-US-AvaNeural"
 audio_file = "voiceover.mp3"
 
 async def generate_voice():
@@ -41,12 +41,12 @@ async def generate_voice():
 asyncio.run(generate_voice())
 print("Voiceover generated successfully!")
 
-# 4. توليد وصف الصورة بالذكاء الاصطناعي
+# 4. Image Prompt Generation
 image_prompt_req = f"Write a short, detailed image prompt in English for a 3D Pixar style cartoon scene representing this story: '{script_text}'. Keep it under 20 words."
 image_prompt_res = model.generate_content(image_prompt_req)
 clean_image_prompt = image_prompt_res.text.strip().replace('\n', ' ')
 
-# 5. جلب الصورة الرأسية (1080x1920)
+# 5. Fetch Image (Vertical 1080x1920)
 image_url = f"https://image.pollinations.ai/prompt/{requests.utils.quote(clean_image_prompt)}?width=1080&height=1920&nologo=true"
 image_file = "scene.jpg"
 
@@ -58,7 +58,7 @@ try:
 except Exception as e:
     print(f"Failed to fetch image: {e}")
 
-# 6. دمج الصوت والصورة لإنتاج فيديو final_video.mp4
+# 6. Combine Audio & Image into Video MP4
 try:
     audio_clip = AudioFileClip(audio_file)
     video_clip = ImageClip(image_file).set_duration(audio_clip.duration)

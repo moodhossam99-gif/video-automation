@@ -24,13 +24,13 @@ except Exception:
     model_name = supported_models[0] if supported_models else 'gemini-1.5-flash'
     model = genai.GenerativeModel(model_name)
 
-# 2. Script Generation (English)
+# 2. Script Generation
 script_prompt = "Write a very short, funny 2-line joke between a child and a father."
 response = model.generate_content(script_prompt)
 script_text = response.text.strip()
 print(f"Generated Script:\n{script_text}")
 
-# 3. Text to Speech (English Voice)
+# 3. Text to Speech
 VOICE = "en-US-AvaNeural"
 audio_file = "voiceover.mp3"
 
@@ -46,7 +46,7 @@ image_prompt_req = f"Write a short, detailed image prompt in English for a 3D Pi
 image_prompt_res = model.generate_content(image_prompt_req)
 clean_image_prompt = image_prompt_res.text.strip().replace('\n', ' ')
 
-# 5. Fetch Image (Vertical 1080x1920)
+# 5. Fetch Image
 image_url = f"https://image.pollinations.ai/prompt/{requests.utils.quote(clean_image_prompt)}?width=1080&height=1920&nologo=true"
 image_file = "scene.jpg"
 

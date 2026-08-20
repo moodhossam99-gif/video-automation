@@ -2,7 +2,7 @@ import os
 import asyncio
 import requests
 import edge_tts
-from google import genai
+import google.generativeai as genai
 
 # استدعاء MoviePy بشكل متوافق
 try:
@@ -11,19 +11,17 @@ except ImportError:
     from moviepy.audio.io.AudioFileClip import AudioFileClip
     from moviepy.video.VideoClip import ImageClip
 
-# 1. إعداد Gemini API باستخدام المكتبة الجديدة
+# 1. إعداد Gemini API
 API_KEY = os.getenv("API_KEY", "").strip()
 if not API_KEY:
     raise ValueError("API_KEY is missing!")
 
-client = genai.Client(api_key=API_KEY)
+genai.configure(api_key=API_KEY)
+model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 # 2. توليد سيناريو كرتوني طريف
 script_prompt = "اكتب موقفًا كرتونيًا طريفًا وقصيرًا جداً بين طفل ووالده باللغة العربية في سطرين فقط."
-response = client.models.generate_content(
-    model='gemini-2.5-flash',
-    contents=script_prompt,
-)
+response = model.generate_content(script_prompt)
 script_text = response.text.strip()
 print(f"Generated Script:\n{script_text}")
 
@@ -40,10 +38,7 @@ print("Voiceover generated successfully!")
 
 # 4. توليد وصف الصورة بالذكاء الاصطناعي
 image_prompt_req = f"Write a short, detailed image prompt in English for a 3D Pixar style cartoon scene representing this story: '{script_text}'. Keep it under 20 words."
-image_prompt_res = client.models.generate_content(
-    model='gemini-2.5-flash',
-    contents=image_prompt_req,
-)
+image_prompt_res = model.generate_content(image_prompt_req)
 clean_image_prompt = image_prompt_res.text.strip().replace('\n', ' ')
 
 # 5. جلب الصورة الرأسية (1080x1920)

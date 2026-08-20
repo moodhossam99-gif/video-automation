@@ -3,7 +3,13 @@ import asyncio
 import requests
 import edge_tts
 import google.generativeai as genai
-from moviepy.editor import AudioFileClip, ImageClip
+
+# استدعاء MoviePy بشكل متوافق مع كافة الإصدارات
+try:
+    from moviepy.editor import AudioFileClip, ImageClip
+except ImportError:
+    from moviepy.audio.io.AudioFileClip import AudioFileClip
+    from moviepy.video.VideoClip import ImageClip
 
 # 1. إعداد Gemini API
 API_KEY = os.getenv("API_KEY", "").strip()
@@ -25,7 +31,7 @@ response = model.generate_content(script_prompt)
 script_text = response.text.strip()
 print(f"Generated Script:\n{script_text}")
 
-# 3. تحويل النص إلى صوت مصري طبيعي (Edge TTS)
+# 3. تحويل النص إلى صوت (Edge TTS)
 VOICE = "ar-EG-SalmaNeural"
 audio_file = "voiceover.mp3"
 

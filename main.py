@@ -11,13 +11,18 @@ except ImportError:
     from moviepy.audio.io.AudioFileClip import AudioFileClip
     from moviepy.video.VideoClip import ImageClip
 
-# 1. إعداد Gemini API
+# 1. إعداد Gemini API وجلب موديل شغال تلقائياً
 API_KEY = os.getenv("API_KEY", "").strip()
 if not API_KEY:
     raise ValueError("API_KEY is missing!")
 
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-1.5-flash-latest')
+
+# جلب أول موديل يدعم generateContent تلقائياً لمنع أي خطأ 404
+supported_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+selected_model = supported_models[0] if supported_models else 'gemini-1.5-flash'
+print(f"Using Model: {selected_model}")
+model = genai.GenerativeModel(selected_model)
 
 # 2. توليد سيناريو كرتوني طريف
 script_prompt = "اكتب موقفًا كرتونيًا طريفًا وقصيرًا جداً بين طفل ووالده باللغة العربية في سطرين فقط."

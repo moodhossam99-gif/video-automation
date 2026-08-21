@@ -12,9 +12,9 @@ from googleapiclient.http import MediaFileUpload
 # ==========================================
 # قائمة الموديلات المتاحة والمدعومة حالياً
 MODELS_TO_TRY = [
-    "gemini-2.5-flash",
-    "gemini-2.5-pro",
-    "gemini-1.5-flash-latest",
+    "gemini-2.5-flash-lite",
+    "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
 ]
 
 def generate_content_with_fallback(prompt):
@@ -95,40 +95,4 @@ def upload_video_to_youtube(video_path, title, description, tags=None):
         response = None
         while response is None:
             status, response = request.next_chunk()
-            if status:
-                print(f"نسبة الرفع: {int(status.progress() * 100)}%")
-
-        print(f"تم الرفع بنجاح! رابط الفيديو: https://youtu.be/{response['id']}")
-        return response
-    except Exception as e:
-        print(f"خطأ أثناء الرفع على يوتيوب: {e}")
-        raise e
-
-
-# ==========================================
-# 3. نقطة التشغيل الرئيسية (Main Execution)
-# ==========================================
-if __name__ == "__main__":
-    print("--- بداية تشغيل السكربت ---")
-
-    prompt = "اكتب عنواناً جذاباً ووصفاً قصيراً لفيديو تقني مشوق. اجعل السطر الأول هو العنوان فقط."
-    generated_text = generate_content_with_fallback(prompt)
-    
-    lines = generated_text.strip().split("\n")
-    video_title = lines[0].replace("#", "").strip()
-    video_description = "\n".join(lines[1:]).strip() if len(lines) > 1 else video_title
-
-    print(f"العنوان المنشأ: {video_title}")
-
-    video_file = "final_video.mp4"
-    if not os.path.exists(video_file):
-        raise FileNotFoundError(f"لم يتم العثور على ملف الفيديو: {video_file}")
-
-    upload_video_to_youtube(
-        video_path=video_file,
-        title=video_title,
-        description=video_description,
-        tags=["AI", "Automation", "Tech"]
-    )
-
-    print("--- اكتملت العملية بنجاح ---")
+            if

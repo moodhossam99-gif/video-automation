@@ -21,12 +21,14 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install google-generativeai edge-tts requests pillow "moviepy<2.0.0"
+          pip install -r requirements.txt
 
       - name: Run Automation Script
         env:
           API_KEY: ${{ secrets.API_KEY }}
-          PROJECT_ID: ${{ secrets.PROJECT_ID }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
         run: python main.py
 
       - name: Save Media Files

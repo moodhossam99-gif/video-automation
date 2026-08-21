@@ -20,12 +20,8 @@ if not API_KEY:
 
 genai.configure(api_key=API_KEY)
 
-try:
-    model = genai.GenerativeModel('gemini-1.5-flash')
-except Exception:
-    supported_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-    model_name = supported_models[0] if supported_models else 'gemini-1.5-flash'
-    model = genai.GenerativeModel(model_name)
+# استخدام النموذج الحديث والمستقر لضمان التوافق
+model = genai.GenerativeModel('gemini-2.5-flash')
 
 # 2. Script Generation
 script_prompt = "Write a very short, funny 2-line joke between a child and a father."

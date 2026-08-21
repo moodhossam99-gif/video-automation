@@ -19,8 +19,6 @@ if not API_KEY:
     raise ValueError("API_KEY is missing!")
 
 genai.configure(api_key=API_KEY)
-
-# استخدام النموذج المعتمد حالياً gemini-3.6-flash
 model = genai.GenerativeModel('gemini-3.6-flash')
 
 # 2. Script Generation
@@ -57,12 +55,18 @@ try:
 except Exception as e:
     print(f"Failed to fetch image: {e}")
 
-# 6. Combine Audio & Image into Video MP4
+# 6. Combine Audio & Image into Video MP4 (تحديث التوافقية)
 output_video = "final_video.mp4"
 try:
     audio_clip = AudioFileClip(audio_file)
-    video_clip = ImageClip(image_file).set_duration(audio_clip.duration)
-    final_clip = video_clip.set_audio(audio_clip)
+    
+    # دعم التوافق مع MoviePy v1 و v2
+    try:
+        video_clip = ImageClip(image_file).set_duration(audio_clip.duration)
+        final_clip = video_clip.set_audio(audio_clip)
+    except AttributeError:
+        video_clip = ImageClip(image_file, duration=audio_clip.duration)
+        final_clip = video_clip.with_audio(audio_clip)
 
     final_clip.write_videofile(output_video, fps=24, codec="libx264", audio_codec="aac")
     print("Final MP4 Video created successfully!")

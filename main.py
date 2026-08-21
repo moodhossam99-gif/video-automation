@@ -11,8 +11,8 @@ from googleapiclient.http import MediaFileUpload
 # 1. إعداد وتوليد النصوص عبر Gemini
 # ==========================================
 MODELS_TO_TRY = [
+    "gemini-3.6-flash",
     "gemini-2.5-flash",
-    "gemini-2.0-flash",
     "gemini-1.5-flash",
 ]
 
@@ -37,10 +37,13 @@ def generate_content_with_fallback(prompt):
                 print(f"تجاوز الحصة للموديل {model_name}، جاري الانتقال للموديل التالي...")
                 time.sleep(2)
                 continue
+            elif "404" in str(e) or "NOT_FOUND" in str(e):
+                print(f"الموديل {model_name} غير متوفر، جاري الانتقال للموديل التالي...")
+                continue
             else:
                 print(f"خطأ في Gemini API: {e}")
                 raise e
-    raise Exception("تم تجاوز حصة جميع الموديلات المتاحة في Gemini.")
+    raise Exception("فشلت المحاولة مع جميع الموديلات المتاحة في Gemini.")
 
 
 # ==========================================

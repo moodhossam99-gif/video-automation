@@ -20,8 +20,8 @@ if not API_KEY:
 
 genai.configure(api_key=API_KEY)
 
-# استخدام النموذج الحديث والمستقر لضمان التوافق
-model = genai.GenerativeModel('gemini-2.5-flash')
+# استخدام النموذج المعتمد حالياً gemini-3.6-flash
+model = genai.GenerativeModel('gemini-3.6-flash')
 
 # 2. Script Generation
 script_prompt = "Write a very short, funny 2-line joke between a child and a father."

@@ -1,9 +1,9 @@
 name: Run Video Automation
 
 on:
-  workflow_dispatch: # يتيح لك تشغيل الـ Workflow يدوياً بضغط زر
+  workflow_dispatch:
   schedule:
-    - cron: '0 12 * * *' # تشغيل تلقائي يومياً الساعة 12 ظهراً (اختياري)
+    - cron: '0 12 * * *'
 
 jobs:
   build-and-run:

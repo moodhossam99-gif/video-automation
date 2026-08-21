@@ -1,20 +1,15 @@
 import os
 import time
-import httplib2
 from google import genai
 from google.genai.errors import APIError
 
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 # ==========================================
 # 1. إعداد وتوليد النصوص عبر Gemini
 # ==========================================
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-client = genai.Client(api_key=GEMINI_API_KEY)
-
 MODELS_TO_TRY = [
     "gemini-2.5-flash",
     "gemini-2.0-flash",
@@ -22,6 +17,12 @@ MODELS_TO_TRY = [
 ]
 
 def generate_content_with_fallback(prompt):
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        raise ValueError("لم يتم العثور على GEMINI_API_KEY في متغيرات البيئة! يرجى إضافة السر في GitHub Settings.")
+
+    client = genai.Client(api_key=api_key)
+
     for model_name in MODELS_TO_TRY:
         try:
             print(f"جاري التوليد باستخدام الموديل: {model_name}...")
@@ -45,19 +46,22 @@ def generate_content_with_fallback(prompt):
 # ==========================================
 # 2. إعداد الاتصال ورفع الفيديو على YouTube
 # ==========================================
-YOUTUBE_CLIENT_ID = os.environ.get("YOUTUBE_CLIENT_ID")
-YOUTUBE_CLIENT_SECRET = os.environ.get("YOUTUBE_CLIENT_SECRET")
-YOUTUBE_REFRESH_TOKEN = os.environ.get("YOUTUBE_REFRESH_TOKEN")
-
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
 def get_youtube_service():
+    client_id = os.environ.get("YOUTUBE_CLIENT_ID")
+    client_secret = os.environ.get("YOUTUBE_CLIENT_SECRET")
+    refresh_token = os.environ.get("YOUTUBE_REFRESH_TOKEN")
+
+    if not all([client_id, client_secret, refresh_token]):
+        raise ValueError("بيانات اعتماد YouTube OAuth غير مكتملة في متغيرات البيئة!")
+
     credentials = Credentials(
         token=None,
-        refresh_token=YOUTUBE_REFRESH_TOKEN,
+        refresh_token=refresh_token,
         token_uri="https://oauth2.googleapis.com/token",
-        client_id=YOUTUBE_CLIENT_ID,
-        client_secret=YOUTUBE_CLIENT_SECRET,
+        client_id=client_id,
+        client_secret=client_secret,
         scopes=SCOPES
     )
     return build("youtube", "v3", credentials=credentials)
@@ -68,13 +72,13 @@ def upload_video_to_youtube(video_path, title, description, tags=None):
 
     body = {
         "snippet": {
-            "title": title[:100],  # الحد الأقصى للعنوان 100 حرف
+            "title": title[:100],
             "description": description,
             "tags": tags or ["automation", "shorts", "ai"],
-            "categoryId": "22"  # 22 = People & Blogs
+            "categoryId": "22"
         },
         "status": {
-            "privacyStatus": "public",  # أو "unlisted" للتجربة
+            "privacyStatus": "public",
             "selfDeclaredMadeForKids": False
         }
     }
@@ -102,7 +106,6 @@ def upload_video_to_youtube(video_path, title, description, tags=None):
 if __name__ == "__main__":
     print("--- بداية تشغيل السكربت ---")
 
-    # أ) توليد عنوان ووصف الفيديو بواسطة Gemini
     prompt = "اكتب عنواناً جذاباً ووصفاً قصيراً لفيديو تقني مشوق. اجعل السطر الأول هو العنوان فقط."
     generated_text = generate_content_with_fallback(prompt)
     
@@ -112,12 +115,10 @@ if __name__ == "__main__":
 
     print(f"العنوان المنشأ: {video_title}")
 
-    # ب) التأكد من وجود ملف الفيديو أو إنشائه
     video_file = "final_video.mp4"
     if not os.path.exists(video_file):
         raise FileNotFoundError(f"لم يتم العثور على ملف الفيديو: {video_file}")
 
-    # ج) رفع الفيديو
     upload_video_to_youtube(
         video_path=video_file,
         title=video_title,

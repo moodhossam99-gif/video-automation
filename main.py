@@ -10,10 +10,11 @@ from googleapiclient.http import MediaFileUpload
 # ==========================================
 # 1. إعداد وتوليد النصوص عبر Gemini
 # ==========================================
+# قائمة الموديلات المتاحة والمدعومة حالياً
 MODELS_TO_TRY = [
     "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-1.5-flash",
+    "gemini-2.5-pro",
+    "gemini-1.5-flash-latest",
 ]
 
 def generate_content_with_fallback(prompt):
